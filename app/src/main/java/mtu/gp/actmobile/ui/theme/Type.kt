@@ -1,4 +1,4 @@
-package mtu.gp.actprototype.ui.theme
+package mtu.gp.actmobile.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ACT Prototype"
+rootProject.name = "ACT Mobile"
 include(":app")
  

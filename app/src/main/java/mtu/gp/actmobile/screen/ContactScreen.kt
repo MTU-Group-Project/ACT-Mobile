@@ -1,4 +1,4 @@
-package mtu.gp.actprototype.screen
+package mtu.gp.actmobile.screen
 
 import android.content.Intent
 import android.net.Uri

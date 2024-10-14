@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">ACT Prototype</string>
+    <string name="app_name">ACT Mobile</string>
+    <string name="client_id">677743889534-mrvljmidljk14ied3g1nm4p8bs73100e.apps.googleusercontent.com</string>
 </resources>

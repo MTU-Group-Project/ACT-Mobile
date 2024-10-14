@@ -1,2 +1,2 @@
-package mtu.gp.actprototype.account
+package mtu.gp.actmobile.account
 

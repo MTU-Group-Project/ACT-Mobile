@@ -1,4 +1,4 @@
-package mtu.gp.actprototype.screen
+package mtu.gp.actmobile.screen
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,8 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import mtu.gp.actprototype.NavItem
-import mtu.gp.actprototype.Screen
+import mtu.gp.actmobile.NavItem
+import mtu.gp.actmobile.Screen
 
 // Represents what the user sees after they log in
 @Composable

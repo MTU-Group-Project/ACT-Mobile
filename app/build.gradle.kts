@@ -1,14 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "mtu.gp.actprototype"
+    namespace = "mtu.gp.actmobile"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "mtu.gp.actprototype"
+        applicationId = "mtu.gp.actmobile"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -69,4 +71,12 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.play.services.auth)
+    implementation(libs.firebase.ui.auth)
+    implementation(platform(libs.firebase.bom))
+
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+
+    implementation(libs.play.services.auth.v2050)
 }

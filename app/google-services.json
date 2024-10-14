@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "677743889534",
+    "firebase_url": "https://mtu-group-project-act-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "mtu-group-project-act",
+    "storage_bucket": "mtu-group-project-act.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:677743889534:android:7f7fe26765f7da5907dc2f",
+        "android_client_info": {
+          "package_name": "mtu.gp.actmobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "677743889534-phsh03fikurc6eso0pd46rftrruqvj9o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "mtu.gp.actmobile",
+            "certificate_hash": "0bfe93e253090ccfa242fb1690704d5355200b9a"
+          }
+        },
+        {
+          "client_id": "677743889534-mrvljmidljk14ied3g1nm4p8bs73100e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdyAxnVseyNEKvgBAKw7PnjUxyazNDips"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "677743889534-7nkkj9rn16mq8kq2nu4kcab8kgt4jldb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

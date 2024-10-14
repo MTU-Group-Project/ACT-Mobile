@@ -1,4 +1,4 @@
-package mtu.gp.actprototype.screen
+package mtu.gp.actmobile.screen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
