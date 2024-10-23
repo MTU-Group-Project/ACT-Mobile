@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -22,6 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import mtu.gp.actmobile.NavItem
 import mtu.gp.actmobile.Screen
+import mtu.gp.actmobile.type.Stock
 
 // Represents what the user sees after they log in
 @Composable
@@ -34,6 +36,10 @@ fun AuthenticatedScreen() {
         NavItem(Screen.Prices.route, Icons.Default.ShoppingCart),
         NavItem(Screen.Contact.route, Icons.Default.Email)
     )
+
+    val stocks = remember { mutableStateListOf<Stock>() }
+
+    val favouriteStocks = remember { mutableStateListOf<Stock>() }
 
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = {},
@@ -61,9 +67,9 @@ fun AuthenticatedScreen() {
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Home.route) { HomeScreen(nav) }
+            composable(Screen.Home.route) { HomeScreen(nav, favouriteStocks) }
             composable(Screen.Contact.route) { ContactScreen() }
-            composable(Screen.Prices.route) { PurchaseAssetScreen(nav) }
+            composable(Screen.Prices.route) { PurchaseAssetScreen(nav, stocks, favouriteStocks) }
         }
     }
 }

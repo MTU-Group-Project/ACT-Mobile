@@ -79,4 +79,9 @@ dependencies {
     implementation(libs.googleid)
 
     implementation(libs.play.services.auth.v2050)
+
+    implementation(libs.facebook.login)
+
+    implementation(libs.retrofit2.retrofit)
+    implementation(libs.converter.gson)
 }
