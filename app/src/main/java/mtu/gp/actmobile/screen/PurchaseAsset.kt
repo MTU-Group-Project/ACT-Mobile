@@ -22,6 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.database.database
 import ie.slin.assignment1.component.StockList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +41,10 @@ interface StockService {
     suspend fun getStocks(): List<Stock>
 }
 
+
+// TODO: Move
+var selectedStock: Stock? = null
+
 @Composable
 fun PurchaseAssetScreen(
     nav: NavHostController,
@@ -46,7 +53,7 @@ fun PurchaseAssetScreen(
 ) {
 
     val retrofit = Retrofit.Builder()
-        .baseUrl("http://10.0.2.2:5000/api/")
+        .baseUrl("http://10.0.2.2/api/")  // TODO: Change!!
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
@@ -65,11 +72,20 @@ fun PurchaseAssetScreen(
         TitleText("Shares")
         Spacer(Modifier.height(10.dp))
 
-        StockList(stocks, favouriteStocks, {}, { s ->
+        StockList(stocks, favouriteStocks, { s ->
+            selectedStock = s
+            nav.navigate(Screen.ShareInformationScreen.route)
+        }, { s ->
             if (!favouriteStocks.contains(s))
                 favouriteStocks.add(s)
             else
                 favouriteStocks.remove(s)
+
+            val stocks = favouriteStocks.map { it.short_name }
+
+            if (Firebase.auth.currentUser != null) {
+                Firebase.database.reference.child("fundadmin").child("${Firebase.auth.currentUser!!.uid}").child("favourites").setValue(stocks)
+            }
         })
     }
 }

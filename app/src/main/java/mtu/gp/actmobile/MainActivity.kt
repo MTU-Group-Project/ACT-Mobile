@@ -37,6 +37,7 @@ sealed class Screen(val route: String) {
     object Prices: Screen("Prices")
     object Authenticated: Screen("Authenticated")
     object RegisterScreen: Screen("Register")
+    object ShareInformationScreen: Screen("ShareInformation")
 }
 
 class MainActivity : ComponentActivity() {

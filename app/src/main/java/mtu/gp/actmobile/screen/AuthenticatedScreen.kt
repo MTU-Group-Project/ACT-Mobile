@@ -67,9 +67,10 @@ fun AuthenticatedScreen() {
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Home.route) { HomeScreen(nav, favouriteStocks) }
+            composable(Screen.Home.route) { HomeScreen(nav, stocks, favouriteStocks) }
             composable(Screen.Contact.route) { ContactScreen() }
             composable(Screen.Prices.route) { PurchaseAssetScreen(nav, stocks, favouriteStocks) }
+            composable(Screen.ShareInformationScreen.route) { ShareInformationScreen(nav) }
         }
     }
 }
