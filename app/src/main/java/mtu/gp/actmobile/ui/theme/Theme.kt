@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 private val DarkColorScheme = darkColorScheme(
     primary = White100,
     secondary = Black80,
-    tertiary = Black100
+    tertiary = Black100,
 )
 
 //private val LightColorScheme = lightColorScheme(
@@ -29,7 +29,7 @@ private val DarkColorScheme = darkColorScheme(
 
 val buttonColours = ButtonColors(
     contentColor = Black100,
-    containerColor = White100,
+    containerColor = Black100,
 
     disabledContentColor = White100,
     disabledContainerColor = Black100

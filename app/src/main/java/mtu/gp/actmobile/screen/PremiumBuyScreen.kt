@@ -3,9 +3,13 @@ package mtu.gp.actmobile.screen
 import android.content.Context
 import android.os.Looper
 import android.widget.Toast
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.stripe.android.PaymentConfiguration
@@ -53,7 +57,7 @@ suspend fun getSecret(): String {
     return data.secret
 }
 
-42@Serializable
+@Serializable
 data class PurchaseStatus(
     val status: Int
 )
@@ -92,13 +96,16 @@ fun PremiumBuyScreen() {
 
     PaymentConfiguration.init(LocalContext.current, "pk_test_51QKcauDGbrVfwZ9w6XMHg8xzhWfaEot3WPf8ZLSbJbRdgpYzE17MRjLJ2oV5n6rgcUTkcf50FvfViEkwIqPULQiX00RzE4VAWm")
 
-    Button({
-        GlobalScope.launch {
-            secret = getSecret()
-            paymentSheet.presentWithPaymentIntent(secret)
+    Column(Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        Button({
+            GlobalScope.launch {
+                secret = getSecret()
+                paymentSheet.presentWithPaymentIntent(secret)
+            }
+        }) {
+            Text("Pay for ACT-AI Premium", color = Color.Black)
         }
-    }) {
-        Text("Pay", color = Color.Black)
     }
 }
 

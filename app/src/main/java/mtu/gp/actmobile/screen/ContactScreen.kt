@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
+import mtu.gp.actmobile.ui.theme.buttonColours
 
 
 const val PHONE_NUMBER = "+353894560072"
@@ -45,7 +46,7 @@ fun ContactScreen() {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
-    var feedback by remember { mutableStateOf("")}
+    var feedback by remember { mutableStateOf("") }
 
     val ctx = LocalContext.current
 
@@ -60,7 +61,7 @@ fun ContactScreen() {
             val intent = Intent(Intent.ACTION_DIAL)
             intent.data = Uri.parse("tel:$PHONE_NUMBER")
             ctx.startActivity(intent)
-        }) {
+        }, colors = buttonColours) {
             Text("Call Support")
         }
 
@@ -79,7 +80,7 @@ fun ContactScreen() {
                 value = name,
                 onValueChange = { name = it },
                 label = { Text("Name") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
 
             // Email input field
@@ -113,7 +114,8 @@ fun ContactScreen() {
                 onClick = {
                     // Handle submission logic, e.g., validating inputs and processing
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = buttonColours
             ) {
                 Text("Submit")
             }
@@ -128,7 +130,7 @@ fun ContactScreen() {
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = Uri.parse("market://details?id=$APP_PACKAGE")
                 ctx.startActivity(intent)
-            }
+            }, colors = buttonColours
         ) {
             Text("Leave a rating!")
         }
