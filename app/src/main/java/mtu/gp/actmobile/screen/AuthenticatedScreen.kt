@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -34,7 +35,8 @@ fun AuthenticatedScreen() {
     val bottomBars = listOf(
         NavItem(Screen.Home.route, Icons.Default.Home),
         NavItem(Screen.Prices.route, Icons.Default.ShoppingCart),
-        NavItem(Screen.Contact.route, Icons.Default.Email)
+        NavItem(Screen.Contact.route, Icons.Default.Email),
+        NavItem(Screen.PremiumBuyScreen.route, Icons.Default.Star)
     )
 
     val stocks = remember { mutableStateListOf<Stock>() }
@@ -71,6 +73,7 @@ fun AuthenticatedScreen() {
             composable(Screen.Contact.route) { ContactScreen() }
             composable(Screen.Prices.route) { PurchaseAssetScreen(nav, stocks, favouriteStocks) }
             composable(Screen.ShareInformationScreen.route) { ShareInformationScreen(nav) }
+            composable(Screen.PremiumBuyScreen.route) { PremiumBuyScreen() }
         }
     }
 }

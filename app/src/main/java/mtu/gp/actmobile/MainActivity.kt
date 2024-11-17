@@ -38,6 +38,7 @@ sealed class Screen(val route: String) {
     object Authenticated: Screen("Authenticated")
     object RegisterScreen: Screen("Register")
     object ShareInformationScreen: Screen("ShareInformation")
+    object PremiumBuyScreen: Screen("BuyPremium")
 }
 
 class MainActivity : ComponentActivity() {
@@ -62,9 +63,9 @@ class MainActivity : ComponentActivity() {
              val credentialManager = CredentialManager.create(activity)
 
              val googleIdOption = GetGoogleIdOption.Builder()
-                 .setFilterByAuthorizedAccounts(false)
+                 .setFilterByAuthorizedAccounts(true)
                  .setServerClientId(getString(R.string.client_id))
-                 .setAutoSelectEnabled(false)
+                 .setAutoSelectEnabled(true)
                  .setNonce("1123123") // TODO: make nonce
                  .build()
 

@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.kotlin.android)
 
     id("com.google.gms.google-services")
+
+    kotlin("plugin.serialization")
+
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -11,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId = "mtu.gp.actmobile"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -42,7 +46,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.12"
     }
     packaging {
         resources {
@@ -84,4 +88,18 @@ dependencies {
     implementation(libs.converter.gson)
 
     implementation(libs.firebase.database)
+
+    implementation(libs.ycharts)
+
+    implementation(libs.stripe.android)
+
+    // Ktor for networking
+    implementation(libs.ktor.ktor.client.core)
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.serialization)
+
+    // Kotlinx Serialization for JSON parsing
+    implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.kotlinx.serialization.json.v173)
 }
