@@ -22,6 +22,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
+
 
 const val PHONE_NUMBER = "+353894560072"
 const val APP_PACKAGE = "mtu.gp.actprototype"
@@ -36,6 +42,11 @@ fun TitleText(text: String) {
 // and also rate the application
 @Composable
 fun ContactScreen() {
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var feedback by remember { mutableStateOf("")}
+
     val ctx = LocalContext.current
 
     var text by remember { mutableStateOf("") }
@@ -54,21 +65,60 @@ fun ContactScreen() {
         }
 
         // Form to contact support (authenticated)
-        Spacer(Modifier.height(30.dp))
-        TitleText("Contact Support")
-
-        TextField(
-            text,
-            { text = it },
-            label = { Text("Message") })
-
-        Button(
-            {
-                // TODO: Submit the message
-            }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Submit message")
+            Text(text = "Contact Help", style = MaterialTheme.typography.titleLarge)
+
+            // Name input field
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Name") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Email input field
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Phone number input field
+            OutlinedTextField(
+                value = phone,
+                onValueChange = { phone = it },
+                label = { Text("Phone Number") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Feedback input field
+            OutlinedTextField(
+                value = feedback,
+                onValueChange = { feedback = it },
+                label = { Text("How can we help you?") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp) 
+            )
+
+            // Submit button
+            Button(
+                onClick = {
+                    // Handle submission logic, e.g., validating inputs and processing
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Submit")
+            }
         }
+
 
         // Leave rating
         Spacer(Modifier.height(30.dp))
