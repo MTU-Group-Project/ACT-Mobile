@@ -12,19 +12,33 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import mtu.gp.actmobile.NavItem
 import mtu.gp.actmobile.Screen
+import mtu.gp.actmobile.StocksViewState
+import mtu.gp.actmobile.screen.authenticated.ContactScreen
+import mtu.gp.actmobile.screen.authenticated.HomeScreen
+import mtu.gp.actmobile.screen.authenticated.PremiumBuyScreen
+import mtu.gp.actmobile.screen.authenticated.PurchaseAssetScreen
+import mtu.gp.actmobile.screen.authenticated.ShareInformationScreen
 import mtu.gp.actmobile.type.Stock
+
+data class NavItem(
+    var name: String,
+    var image: ImageVector,
+    val label: String
+)
 
 // Represents what the user sees after they log in
 @Composable
@@ -33,15 +47,18 @@ fun AuthenticatedScreen() {
     var selectedNavItem by remember { mutableIntStateOf(0) }
 
     val bottomBars = listOf(
-        NavItem(Screen.Home.route, Icons.Default.Home),
-        NavItem(Screen.Prices.route, Icons.Default.ShoppingCart),
-        NavItem(Screen.Contact.route, Icons.Default.Email),
-        NavItem(Screen.PremiumBuyScreen.route, Icons.Default.Star)
+        NavItem(Screen.Home.route, Icons.Default.Home, "Home"),
+        NavItem(Screen.Prices.route, Icons.Default.ShoppingCart, "Shares"),
+        NavItem(Screen.Contact.route, Icons.Default.Email, "Contact"),
+        NavItem(Screen.PremiumBuyScreen.route, Icons.Default.Star, "Premium")
     )
 
-    val stocks = remember { mutableStateListOf<Stock>() }
+    val stocks = StocksViewState()
 
-    val favouriteStocks = remember { mutableStateListOf<Stock>() }
+    LaunchedEffect(Unit) {
+        stocks.updateStocks()
+        stocks.updateFavourites()
+    }
 
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = {},
@@ -56,7 +73,8 @@ fun AuthenticatedScreen() {
                                 selectedNavItem = i
                                 nav.navigate(e.name)
                             },
-                            icon = { Icon(e.image, e.name) }
+                            icon = { Icon(e.image, e.name) },
+                            label = { Text(e.label) }
                         )
                     }
                 }
@@ -69,10 +87,17 @@ fun AuthenticatedScreen() {
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Home.route) { HomeScreen(nav, stocks, favouriteStocks) }
+            composable(Screen.Home.route) { HomeScreen(nav, stocks) }
             composable(Screen.Contact.route) { ContactScreen() }
-            composable(Screen.Prices.route) { PurchaseAssetScreen(nav, stocks, favouriteStocks) }
-            composable(Screen.ShareInformationScreen.route) { ShareInformationScreen(nav) }
+            composable(Screen.Prices.route) { PurchaseAssetScreen(nav, stocks) }
+            composable("${Screen.ShareInformationScreen.route}/{share}") {
+                val shareName = it.arguments?.getString("share")
+
+                val stock = stocks.getStockByName(shareName ?: "")
+
+                ShareInformationScreen(nav, stock)
+            }
+
             composable(Screen.PremiumBuyScreen.route) { PremiumBuyScreen() }
         }
     }

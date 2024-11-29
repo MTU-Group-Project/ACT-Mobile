@@ -102,4 +102,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.kotlinx.serialization.json.v173)
+
+
+    // View Models
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 }

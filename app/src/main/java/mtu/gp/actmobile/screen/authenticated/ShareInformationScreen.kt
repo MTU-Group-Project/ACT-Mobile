@@ -1,4 +1,4 @@
-package mtu.gp.actmobile.screen
+package mtu.gp.actmobile.screen.authenticated
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
@@ -31,19 +31,17 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import mtu.gp.actmobile.component.NiceButton
 import mtu.gp.actmobile.type.AIPrediction
 import mtu.gp.actmobile.type.Stock
-import mtu.gp.actmobile.ui.theme.buttonColours
 
 @Composable
-fun ShareInformationScreen(nav: NavHostController) {
+fun ShareInformationScreen(nav: NavHostController, stock: Stock?) {
     // TODO: This has to be changed
-    if (selectedStock == null)
+    if (stock == null)
         return
 
     val scroll = rememberScrollState()
@@ -53,7 +51,7 @@ fun ShareInformationScreen(nav: NavHostController) {
 
     var reportState by remember { mutableStateOf("AI report unrequested") }
 
-    selectedStock!!.history.forEachIndexed { i, h ->
+    stock.history.forEachIndexed { i, h ->
         lows.add(Point(i.toFloat(), h.Low.toFloat()))
         highs.add(Point(i.toFloat(), h.High.toFloat()))
     }
@@ -99,19 +97,17 @@ fun ShareInformationScreen(nav: NavHostController) {
             )
         }
 
+        Text(stock.short_name)
+        Text(stock.long_name)
 
-
-        Text(selectedStock!!.short_name)
-        Text(selectedStock!!.long_name)
-
-        Text("${selectedStock!!.price} ${selectedStock!!.currency}")
+        Text("${stock.price} ${stock.currency}")
 
         Button({
             GlobalScope.launch {
                 while (true) {
                     try {
                         val url =
-                            "http://10.0.2.2:5002/mtu-group-project-act/us-central1/get_report?stock=${selectedStock!!.short_name}"
+                            "https://get-report-xqeobirwha-uc.a.run.app?stock=${stock.short_name}"
 
                         val json = Json {
                             ignoreUnknownKeys = true
@@ -134,7 +130,7 @@ fun ShareInformationScreen(nav: NavHostController) {
                     delay(1000)
                 }
             }
-        }, colors = buttonColours) {
+        }) {
             Text("Use AI to generate stock information")
         }
 

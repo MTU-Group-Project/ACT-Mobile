@@ -1,5 +1,8 @@
 package mtu.gp.actmobile.type
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class StockHistory(
     val Open: Double,
     val High: Double,
@@ -7,6 +10,7 @@ data class StockHistory(
     val Close: Double
 )
 
+@Serializable
 data class Stock(
     val short_name: String,
     val long_name: String,

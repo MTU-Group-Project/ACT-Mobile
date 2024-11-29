@@ -1,16 +1,15 @@
-package mtu.gp.actmobile.screen
+package mtu.gp.actmobile.screen.launch
 
-import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,16 +18,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import mtu.gp.actmobile.MainActivity
 import mtu.gp.actmobile.Screen
 import mtu.gp.actmobile.component.NiceButton
+import mtu.gp.actmobile.component.NiceTextInput
 
 @Composable
 fun RegisterScreen(nav: NavHostController, activity: MainActivity) {
@@ -38,30 +37,22 @@ fun RegisterScreen(nav: NavHostController, activity: MainActivity) {
 
     val context = LocalContext.current
 
-    Scaffold(modifier = Modifier.fillMaxSize(),
-        topBar = {},
-        floatingActionButton = {}
-    ) { innerPadding ->
-        Column(Modifier.fillMaxSize().padding(innerPadding), horizontalAlignment = Alignment.CenterHorizontally) {
-            // Title and details
+    BackgroundShapesAndLines()
 
-            NiceButton("Back") {
-                nav.navigate(Screen.Launch.route)
-            }
+    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+        Column(Modifier.padding(36.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(Modifier.height(32.dp))
+            Text("ACT", style = MaterialTheme.typography.headlineLarge)
+            Spacer(Modifier.height(32.dp))
 
-            Spacer(Modifier.height(30.dp))
-            Text("ACT", fontWeight = FontWeight.Black, fontSize = 45.sp)
-            Spacer(Modifier.height(40.dp))
-
-            TextField(email, { email = it }, placeholder = { Text("Email") })
-
+            NiceTextInput(email, "Email") { email = it; email = email.trim() }
             Spacer(Modifier.height(10.dp))
-
-            TextField(password, { password = it }, placeholder = { Text("Password") }, visualTransformation = PasswordVisualTransformation())
+            NiceTextInput(password, "Password", true) { password = it }
             Spacer(Modifier.height(10.dp))
-
-            TextField(verifyPassword, { verifyPassword = it }, placeholder = { Text("Verify Password") }, visualTransformation = PasswordVisualTransformation())
-            Spacer(Modifier.height(10.dp))
+            NiceTextInput(password, "Verify Password", true) { verifyPassword = it }
+            Spacer(Modifier.height(20.dp))
 
             // Sign in button and handler
             NiceButton("Register") {
@@ -89,6 +80,16 @@ fun RegisterScreen(nav: NavHostController, activity: MainActivity) {
                         Toast.makeText(context, fail.message, Toast.LENGTH_LONG).show()
                     }
             }
+
+            Spacer(Modifier.height(20.dp))
+            Text("Already have an account?",
+                Modifier.clickable {
+                    nav.navigate(Screen.Launch.route)
+                },
+                style = TextStyle(fontWeight = FontWeight.SemiBold)
+            )
+
+            OrContinueWith(activity, nav)
         }
     }
 }
