@@ -1,5 +1,6 @@
 package mtu.gp.actmobile.screen
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -17,11 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -32,7 +34,7 @@ import mtu.gp.actmobile.screen.authenticated.HomeScreen
 import mtu.gp.actmobile.screen.authenticated.PremiumBuyScreen
 import mtu.gp.actmobile.screen.authenticated.PurchaseAssetScreen
 import mtu.gp.actmobile.screen.authenticated.ShareInformationScreen
-import mtu.gp.actmobile.type.Stock
+import mtu.gp.actmobile.screen.launch.BackgroundShapesAndLines
 
 data class NavItem(
     var name: String,
@@ -42,7 +44,7 @@ data class NavItem(
 
 // Represents what the user sees after they log in
 @Composable
-fun AuthenticatedScreen() {
+fun AuthenticatedNav() {
     val nav = rememberNavController()
     var selectedNavItem by remember { mutableIntStateOf(0) }
 
@@ -53,7 +55,7 @@ fun AuthenticatedScreen() {
         NavItem(Screen.PremiumBuyScreen.route, Icons.Default.Star, "Premium")
     )
 
-    val stocks = StocksViewState()
+    val stocks = StocksViewState(LocalContext.current)
 
     LaunchedEffect(Unit) {
         stocks.updateStocks()
@@ -61,8 +63,6 @@ fun AuthenticatedScreen() {
     }
 
     Scaffold(modifier = Modifier.fillMaxSize(),
-        topBar = {},
-        floatingActionButton = {},
         bottomBar = {
             BottomAppBar {
                 NavigationBar {
@@ -81,24 +81,39 @@ fun AuthenticatedScreen() {
             }
         }
     ) { innerPadding ->
-        NavHost(
-            navController = nav,
-            route = Screen.Authenticated.route,
-            startDestination = Screen.Home.route,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(Screen.Home.route) { HomeScreen(nav, stocks) }
-            composable(Screen.Contact.route) { ContactScreen() }
-            composable(Screen.Prices.route) { PurchaseAssetScreen(nav, stocks) }
-            composable("${Screen.ShareInformationScreen.route}/{share}") {
-                val shareName = it.arguments?.getString("share")
+        BackgroundShapesAndLines()
 
-                val stock = stocks.getStockByName(shareName ?: "")
+        Column(Modifier.padding(horizontal = 20.dp)) {
+            NavHost(
+                navController = nav,
+                route = Screen.Authenticated.route,
+                startDestination = Screen.Home.route,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable(Screen.Home.route) { HomeScreen(nav, stocks) }
+                composable(Screen.Contact.route) { ContactScreen() }
+                composable(Screen.Prices.route) { PurchaseAssetScreen(nav, stocks) }
+                composable("${Screen.ShareInformationScreen.route}/{share}") {
+                    val shareName = it.arguments?.getString("share")
+                    val stock = stocks.getStockByName(shareName ?: "")
 
-                ShareInformationScreen(nav, stock)
+                    ShareInformationScreen(nav, stock, stocks)
+                }
+
+                composable("${Screen.PurchaseInformationScreen.route}/{purchase}") {
+                    val purchaseId = it.arguments?.getString("purchase")
+                    val purchase = stocks.getPurchaseById(purchaseId ?: "")
+
+                    if (purchase == null) {
+                        nav.popBackStack()
+                        return@composable
+                    }
+
+                    ShareInformationScreen(nav, purchase.stock, stocks, purchase)
+                }
+
+                composable(Screen.PremiumBuyScreen.route) { PremiumBuyScreen() }
             }
-
-            composable(Screen.PremiumBuyScreen.route) { PremiumBuyScreen() }
         }
     }
 }

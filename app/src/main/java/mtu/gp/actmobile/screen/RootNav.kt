@@ -21,6 +21,6 @@ fun RootNavigation(modifier: Modifier, activity: MainActivity) {
             composable(Screen.RegisterScreen.route) { RegisterScreen(nav, activity) }
         }
 
-        composable(Screen.Authenticated.route) { AuthenticatedScreen() }
+        composable(Screen.Authenticated.route) { AuthenticatedNav() }
     }
 }

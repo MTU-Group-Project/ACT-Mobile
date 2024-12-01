@@ -1,24 +1,23 @@
 package mtu.gp.actmobile
 
+import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navigation
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
@@ -34,12 +33,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import mtu.gp.actmobile.screen.AuthenticatedScreen
 import mtu.gp.actmobile.screen.RootNavigation
-import mtu.gp.actmobile.screen.launch.LoginScreen
-import mtu.gp.actmobile.screen.launch.RegisterScreen
 import mtu.gp.actmobile.type.Stock
 import mtu.gp.actmobile.ui.theme.ACTMobileTheme
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 sealed class Screen(val route: String) {
     object Home: Screen("home")
@@ -49,6 +47,7 @@ sealed class Screen(val route: String) {
     object Authenticated: Screen("authenticated")
     object RegisterScreen: Screen("register")
     object ShareInformationScreen: Screen("share_info")
+    object PurchaseInformationScreen: Screen("purchase_info")
     object PremiumBuyScreen: Screen("buy_premium")
 }
 
@@ -115,61 +114,186 @@ data class StocksUiState(
     val stocks: List<Stock> = emptyList()
 )
 
-class StocksViewState : ViewModel() {
+data class PurchaseInformation(
+    val uniqueId: String,
+    val stock: Stock,
+    val amount: Int
+)
+
+data class PurchasesUiState(
+    val purchases: List<PurchaseInformation> = emptyList()
+)
+
+data class PriceAlert(
+    val uniqueId: String,
+    val purchase: PurchaseInformation,
+    val price: Float
+)
+
+data class PriceAlertsUiState(
+    val alerts: List<PriceAlert> = emptyList()
+)
+
+class StocksViewState(val context: Context) : ViewModel() {
     private val _stocksState = MutableStateFlow(StocksUiState())
     val stocksState: StateFlow<StocksUiState> = _stocksState.asStateFlow()
-    private val _favouriteStocksState = MutableStateFlow(StocksUiState())
-    val favouriteStocksState: StateFlow<StocksUiState> = _favouriteStocksState.asStateFlow()
+    private val _purchasesState = MutableStateFlow(PurchasesUiState())
+    val purchasesState: StateFlow<PurchasesUiState> = _purchasesState.asStateFlow()
+    private val _alertsState = MutableStateFlow(PriceAlertsUiState())
+    val alertsState: StateFlow<PriceAlertsUiState> = _alertsState.asStateFlow()
 
-//    fun addFavouriteStock(stock: Stock) {
-//        if (favouriteStocks.contains(stock))
-//            return
-//
-//        favouriteStocks.add(stock)
-//    }
+    init {
+        val service = Executors.newSingleThreadScheduledExecutor()
+        val handler = Handler(Looper.getMainLooper())
+        service.scheduleWithFixedDelay({
+            handler.run {
+                updateStocks()
+            }
+        }, 0, 1, TimeUnit.MINUTES);
+    }
 
-//    fun removeFavouriteStock(stock: Stock) {
-//        favouriteStocks.value.remove(stock)
-//    }
+    fun buyStock(stock: Stock, amount: Int) {
+        val node = Firebase.database.reference
+            .child("fundadmin")
+            .child(Firebase.auth.currentUser!!.uid)
+            .child("purchases").push()
+
+        node.child("name").setValue(stock.short_name)
+        node.child("amount").setValue(amount)
+
+        val p = _purchasesState.value.purchases.toMutableList()
+        p.add(PurchaseInformation(node.key!!, stock, amount))
+        _purchasesState.value = PurchasesUiState(p)
+    }
+
+    fun sellStock(purchase: PurchaseInformation) {
+        val node = Firebase.database.reference
+            .child("fundadmin")
+            .child(Firebase.auth.currentUser!!.uid)
+            .child("purchases")
+            .child(purchase.uniqueId)
+
+        node.removeValue()
+
+        val p = _purchasesState.value.purchases.toMutableList()
+        p.remove(purchase)
+        _purchasesState.value = PurchasesUiState(p)
+    }
 
     fun getStockByName(name: String): Stock? {
         return _stocksState.value.stocks.firstOrNull { it.short_name == name }
     }
 
-    suspend fun updateStocks() {
-        val json = Json {
-            ignoreUnknownKeys = true
+    fun getPurchaseById(id: String): PurchaseInformation? {
+        return _purchasesState.value.purchases.firstOrNull { it.uniqueId == id }
+    }
+
+    fun updateStocks() {
+        viewModelScope.launch {
+            val json = Json {
+                ignoreUnknownKeys = true
+            }
+
+            val res = HttpClient().get("https://get-stocks-xqeobirwha-uc.a.run.app")
+            val data: List<Stock> = json.decodeFromString(res.body())
+
+            val newState = StocksUiState(data)
+
+            updateFavourites()
+
+            checkAlerts(_stocksState.value, _alertsState.value)
+
+            _stocksState.value = newState
         }
+    }
 
-        val res = HttpClient().get("https://get-stocks-xqeobirwha-uc.a.run.app")
-        val data: List<Stock> = json.decodeFromString(res.body())
+    private fun checkAlerts(oldState: StocksUiState, newState: PriceAlertsUiState) {
+        newState.alerts.forEach { a ->
+            val newStock = a.purchase.stock
+            val oldStock = oldState.stocks.firstOrNull { it.short_name == a.purchase.stock.short_name }
+            val alert = a.price
 
-        _stocksState.value = StocksUiState(data)
+            if (oldStock == null)
+                return@forEach
+
+            val oldPrice = oldStock.price
+            val newPrice = newStock.price
+
+//            if ((oldPrice < alert && newPrice >= alert) || (oldPrice > alert && newPrice <= alert)) {
+                showNotification(context)
+//            }
+        }
     }
 
     fun updateFavourites() {
-        if (Firebase.auth.currentUser == null) {
-            return
-        }
+        val purchases = mutableListOf<PurchaseInformation>()
+        val alerts = mutableListOf<PriceAlert>()
 
         Firebase.database.reference
             .child("fundadmin")
             .child(Firebase.auth.currentUser!!.uid)
-            .child("favourites")
+            .child("purchases")
             .get()
             .addOnSuccessListener { data ->
-                val favourites = data.value as List<*>? ?: return@addOnSuccessListener
+                data.children.forEach { c ->
+                    // TODO: This doesnt work
+                    val amount = c.child("amount").value as Long
+                    val stockName = c.child("name").value as String
+                    val stock = _stocksState.value.stocks.firstOrNull { it.short_name == stockName }
 
-                val stocks = mutableListOf<Stock>()
+                    if (stock != null) {
+                        val purchase = PurchaseInformation(c.key!!, stock, amount.toInt())
 
-                favourites.forEach { s ->
-                    val stock = _stocksState.value.stocks.firstOrNull { it.short_name == s }
+                        purchases.add(purchase)
 
-                    if (stock != null && !stocks.contains(stock))
-                        stocks.add(stock)
+                        // Alerts
+                        data.child("alerts").children.forEach { a ->
+                            val price = data.child("price").getValue(Float::class.java) ?: 0f
+
+                            alerts.add(PriceAlert(a.key!!, purchase, price))
+                        }
+                    }
                 }
 
-                _favouriteStocksState.value = StocksUiState(stocks)
+                _purchasesState.value = PurchasesUiState(purchases)
+                _alertsState.value = PriceAlertsUiState(alerts)
             }
+    }
+
+    fun getAlertsForPurchase(purchase: PurchaseInformation): List<PriceAlert> {
+        return _alertsState.value.alerts.filter {
+            it.purchase.uniqueId == purchase.uniqueId
+        }
+    }
+
+    fun publishAlert(purchase: PurchaseInformation, priceAlert: Float) {
+        val node = Firebase.database.reference
+            .child("fundadmin")
+            .child(Firebase.auth.currentUser!!.uid)
+            .child("purchases")
+            .child(purchase.uniqueId)
+            .child("alerts")
+            .push()
+
+        val a = _alertsState.value.alerts.toMutableList()
+        a.add(PriceAlert(node.key!!, purchase, priceAlert))
+        _alertsState.value = PriceAlertsUiState(a)
+
+        node.child("price").setValue(priceAlert)
+    }
+
+    fun unpublishAlert(alert: PriceAlert) {
+        Firebase.database.reference
+            .child("fundadmin")
+            .child(Firebase.auth.currentUser!!.uid)
+            .child("purchases")
+            .child(alert.purchase.uniqueId)
+            .child("alerts")
+            .child(alert.uniqueId)
+            .removeValue()
+
+        val a = _alertsState.value.alerts.toMutableList()
+        a.remove(alert)
+        _alertsState.value = PriceAlertsUiState(a)
     }
 }

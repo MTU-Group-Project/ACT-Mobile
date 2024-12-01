@@ -4,6 +4,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -23,10 +25,17 @@ import mtu.gp.actmobile.ui.theme.LightBlue
 import mtu.gp.actmobile.ui.theme.LighterBlue
 
 @Composable
-fun NiceTextInput(value: String, placeholder: String = "",
-                  hiddenText: Boolean = false, callback: (String) -> Unit
+private fun NiceInput(value: String, placeholder: String,
+                  hiddenText: Boolean, callback: (String) -> Unit,
+                      number: Boolean
 ) {
     val vt = if (hiddenText) PasswordVisualTransformation() else VisualTransformation.None
+
+    var keyboard = KeyboardOptions.Default
+
+    if (number) {
+        keyboard = keyboard.copy(keyboardType = KeyboardType.Number)
+    }
 
     TextField(
         value,
@@ -35,6 +44,7 @@ fun NiceTextInput(value: String, placeholder: String = "",
         visualTransformation = vt,
         shape = RoundedCornerShape(10.dp),
         modifier = Modifier.fillMaxWidth().border(2.dp, Blue, RoundedCornerShape(8.dp)),
+        keyboardOptions = keyboard,
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = LighterBlue,
             focusedContainerColor = LighterBlue,
@@ -42,6 +52,20 @@ fun NiceTextInput(value: String, placeholder: String = "",
             focusedIndicatorColor = Color.Transparent
         )
     )
+}
+
+@Composable
+fun NiceTextInput(value: String, placeholder: String = "",
+                  hiddenText: Boolean = false, callback: (String) -> Unit
+) {
+    NiceInput(value, placeholder, hiddenText, callback, false)
+}
+
+@Composable
+fun NiceIntInput(value: String, placeholder: String = "",
+                  hiddenText: Boolean = false, callback: (String) -> Unit
+) {
+    NiceInput(value, placeholder, hiddenText, callback, true)
 }
 
 @Composable

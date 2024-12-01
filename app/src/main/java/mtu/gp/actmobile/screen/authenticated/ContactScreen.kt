@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mtu.gp.actmobile.component.NiceButton
+import mtu.gp.actmobile.component.NiceIntInput
 import mtu.gp.actmobile.component.NiceTextInput
 
 
@@ -44,7 +45,7 @@ fun ContactScreen() {
     var feedback by remember { mutableStateOf("") }
 
     val ctx = LocalContext.current
-    Column(Modifier.fillMaxSize().padding(20.dp).verticalScroll(rememberScrollState())) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         // Phone to call support
         Text("Phone Support", style = MaterialTheme.typography.headlineMedium)
         Spacer(Modifier.height(20.dp))
@@ -92,8 +93,21 @@ fun ContactScreen() {
 
         // Leave rating
         Spacer(Modifier.height(30.dp))
+
+        NiceIntInput("Stars") {
+            // TODO:
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        NiceTextInput("Leave a Comment") {
+            // TODO:
+        }
+
+        Spacer(Modifier.height(8.dp))
         NiceButton("Leave a rating!") {
             // TODO: fallback if fail?
+            // TODO: Change the idea of this to the comment and stars system
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse("market://details?id=$APP_PACKAGE")
             ctx.startActivity(intent)

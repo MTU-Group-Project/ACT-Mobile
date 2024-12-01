@@ -51,7 +51,7 @@ fun RegisterScreen(nav: NavHostController, activity: MainActivity) {
             Spacer(Modifier.height(10.dp))
             NiceTextInput(password, "Password", true) { password = it }
             Spacer(Modifier.height(10.dp))
-            NiceTextInput(password, "Verify Password", true) { verifyPassword = it }
+            NiceTextInput(verifyPassword, "Verify Password", true) { verifyPassword = it }
             Spacer(Modifier.height(20.dp))
 
             // Sign in button and handler

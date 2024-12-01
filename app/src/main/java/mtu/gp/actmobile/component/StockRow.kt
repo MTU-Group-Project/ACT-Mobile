@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mtu.gp.actmobile.PurchaseInformation
 import mtu.gp.actmobile.type.Stock
 import mtu.gp.actmobile.ui.theme.Blue
 import mtu.gp.actmobile.ui.theme.LighterBlue
@@ -37,6 +38,7 @@ import mtu.gp.actmobile.ui.theme.White100
 @Composable
 fun StockRow(
     stock: Stock,
+    purchase: PurchaseInformation? = null,
     onStockSelect: (Stock) -> Unit
 ) {
     Card(Modifier.fillMaxWidth()
@@ -47,7 +49,13 @@ fun StockRow(
         colors = CardDefaults.cardColors(containerColor = LighterBlue)
     ) {
         Column(Modifier.padding(8.dp)) {
-            Text("${stock.short_name} - ${stock.long_name}\n", style = MaterialTheme.typography.labelLarge)
+            var title = "${stock.short_name} - ${stock.long_name}"
+
+            if (purchase != null) {
+                title = "${purchase.amount}x ${title}"
+            }
+
+            Text(title, style = MaterialTheme.typography.labelLarge)
             Text("${stock.price} ${stock.currency}")
         }
     }

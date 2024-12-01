@@ -4,25 +4,33 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.rememberPaymentSheet
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import mtu.gp.actmobile.component.NiceButton
+
+// NOTE: Test card 4242 4242 4242 4242
 
 @Serializable
 data class PaymentSecret(
@@ -30,25 +38,17 @@ data class PaymentSecret(
     val id: String
 )
 
-private var secret: String = ""
-private var id: String = ""
-
-suspend fun getSecret(): String {
-    // Coordinates for Ballyhoura included
-    val api = "http://10.0.2.2/act_premium"
+suspend fun getSecret(): PaymentSecret {
+    val api = "https://act-premium-buy-xqeobirwha-uc.a.run.app"
 
     val json = Json {
         ignoreUnknownKeys = true
     }
 
-    val client = HttpClient()
-
-    val res = client.post(api)
+    val res = HttpClient().post(api)
     val data: PaymentSecret = json.decodeFromString(res.body())
 
-    id = data.id
-
-    return data.secret
+    return data
 }
 
 @Serializable
@@ -57,23 +57,13 @@ data class PurchaseStatus(
 )
 
 suspend fun madePayment(paymentid: String): Boolean {
-    val api = "http://10.0.2.2/act_premium_purchased"
+    val api = "https://act-premium-purchased-xqeobirwha-uc.a.run.app?payment_id=$paymentid"
 
     val json = Json {
         ignoreUnknownKeys = true
     }
 
-    val client = HttpClient()
-
-    val requestBody = "{\"payment_id\": \"$paymentid\"}"
-
-    // Send the POST request with the body
-    val res = client.post(api) {
-        headers {
-            append(io.ktor.http.HttpHeaders.ContentType, "application/json")
-        }
-        setBody(requestBody)
-    }
+    val res = HttpClient().get(api)
 
     val data: PurchaseStatus = json.decodeFromString(res.body())
 
@@ -84,31 +74,33 @@ suspend fun madePayment(paymentid: String): Boolean {
 fun PremiumBuyScreen() {
     val context = LocalContext.current
 
+    var secret: PaymentSecret? = null
+
+    val scope = rememberCoroutineScope()
+
     val paymentSheet = rememberPaymentSheet { res ->
-        onPaymentSheetResult(context, res)
+        onPaymentSheetResult(context, res, secret, scope)
     }
 
     PaymentConfiguration.init(LocalContext.current, "pk_test_51QKcauDGbrVfwZ9w6XMHg8xzhWfaEot3WPf8ZLSbJbRdgpYzE17MRjLJ2oV5n6rgcUTkcf50FvfViEkwIqPULQiX00RzE4VAWm")
 
-    Column(Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Button({
-            GlobalScope.launch {
+    Column {
+        NiceButton("Pay for ACT-AI Premium") {
+            scope.launch {
                 secret = getSecret()
-                paymentSheet.presentWithPaymentIntent(secret)
+                paymentSheet.presentWithPaymentIntent(secret!!.secret)
             }
-        }) {
-            Text("Pay for ACT-AI Premium", color = Color.Black)
         }
     }
 }
 
-private fun onPaymentSheetResult(context: Context, paymentSheetResult: PaymentSheetResult) {
-
+private fun onPaymentSheetResult(context: Context, paymentSheetResult: PaymentSheetResult, secret: PaymentSecret?, scope: CoroutineScope) {
     when (paymentSheetResult) {
         is PaymentSheetResult.Completed -> {
-            GlobalScope.launch {
-                madePayment(id)
+            scope.launch {
+                if (secret != null) {
+                    madePayment(secret.id)
+                }
             }
 
             Toast.makeText(context, "Payment Succeeded!", Toast.LENGTH_LONG).show()

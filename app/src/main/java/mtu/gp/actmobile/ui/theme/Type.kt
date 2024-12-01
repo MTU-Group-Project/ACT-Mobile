@@ -20,7 +20,7 @@ val Typography = Typography(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.ExtraBold,
         fontSize = 72.sp,
-        lineHeight = 24.sp,
+        lineHeight = 78.sp,
         letterSpacing = 0.5.sp,
         color = Blue
     ),
@@ -29,7 +29,7 @@ val Typography = Typography(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.ExtraBold,
         fontSize = 44.sp,
-        lineHeight = 24.sp,
+        lineHeight = 50.sp,
         letterSpacing = 0.5.sp,
         color = Blue
     ),
@@ -38,7 +38,7 @@ val Typography = Typography(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
-        lineHeight = 10.sp,
+        lineHeight = 26.sp,
         letterSpacing = 0.5.sp,
     ),
 

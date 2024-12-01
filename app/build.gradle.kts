@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId = "mtu.gp.actmobile"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
 
@@ -78,7 +78,7 @@ dependencies {
     implementation(libs.firebase.ui.auth)
     implementation(platform(libs.firebase.bom))
 
-    implementation(libs.androidx.credentials)
+    implementation("androidx.credentials:credentials:1.0.0")
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
 
@@ -93,6 +93,9 @@ dependencies {
 
     implementation(libs.stripe.android)
 
+    // Work Manager
+//    implementation(libs.androidx.work.runtime.ktx)
+
     // Ktor for networking
     implementation(libs.ktor.ktor.client.core)
     implementation(libs.ktor.client.android)
@@ -106,4 +109,6 @@ dependencies {
 
     // View Models
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    implementation(libs.material3)
 }
