@@ -60,6 +60,8 @@ mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 play-services-auth-v2050 = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuthVersion" }
 retrofit2-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofitVersion" }
+richtext-markdown = { module = "com.halilibo.compose-richtext:richtext-markdown" }
+richtext-ui = { module = "com.halilibo.compose-richtext:richtext-ui" }
 stripe-android = { module = "com.stripe:stripe-android", version.ref = "stripeAndroid" }
 ycharts = { module = "co.yml:ycharts", version.ref = "ycharts" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorClientAndroid" }

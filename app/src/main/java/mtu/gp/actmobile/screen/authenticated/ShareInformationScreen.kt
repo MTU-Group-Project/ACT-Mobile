@@ -41,6 +41,13 @@ import co.yml.charts.ui.linechart.model.Line
 import co.yml.charts.ui.linechart.model.LineChartData
 import co.yml.charts.ui.linechart.model.LinePlotData
 import co.yml.charts.ui.linechart.model.LineStyle
+import com.google.firebase.Firebase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.database
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.mohamedrejeb.richeditor.ui.material3.RichText
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -81,6 +88,9 @@ fun ShareInformationScreen(nav: NavHostController, stock: Stock?,
     var priceAlert by remember { mutableFloatStateOf(0f) }
 
     var reportState by remember { mutableStateOf("AI report unrequested") }
+//    var reportText by remember { mutableStateOf("") }
+
+    val reportText = rememberRichTextState()
 
     stock.history.forEachIndexed { i, h ->
         lows.add(Point(i.toFloat(), h.Low.toFloat()))
@@ -230,44 +240,55 @@ fun ShareInformationScreen(nav: NavHostController, stock: Stock?,
             NiceButton("Use AI to generate stock information") {
                 // TODO: Update when Wiktor fixes AI code
                 scope.launch {
-                    while (true) {
-                        // TODO: Fix
-                        val state = updateAI(stock) ?: break
-
-                        reportState = state
-
-                        delay(1000)
-                    }
+                    startAI(stock)
                 }
+
+                val node = Firebase.database.reference
+                    .child("agents")
+                    .child("stock")
+                    .child(stock.short_name)
+
+                node.child("report").addValueEventListener(object: ValueEventListener {
+                    override fun onDataChange(data: DataSnapshot) {
+                        reportText.setMarkdown(if (data.value == null) "" else data.value.toString())
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                    }
+                })
+
+                node.child("state").addValueEventListener(object: ValueEventListener {
+                    override fun onDataChange(data: DataSnapshot) {
+                        reportState = if (data.value == null) "" else data.value.toString()
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                    }
+                })
+
+                node.child("current_task").addValueEventListener(object: ValueEventListener {
+                    override fun onDataChange(data: DataSnapshot) {
+                        reportState = if (data.value == null) "" else data.value.toString()
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                    }
+                })
             }
 
-            Text(reportState)
+            Row {
+                Text("Status: ", fontWeight = FontWeight.Bold)
+                Text(reportState)
+            }
+
+            Spacer(Modifier.height(16.dp))
+            RichText(reportText)
         }
     }
 }
 
-suspend fun updateAI(stock: Stock): String? {
+suspend fun startAI(stock: Stock) {
     try {
-        val url =
-            "https://get-report-xqeobirwha-uc.a.run.app?stock=${stock.short_name}"
-
-        val json = Json {
-            ignoreUnknownKeys = true
-        }
-
-        val client = HttpClient()
-
-        val res = client.get(url)
-        val data: AIPrediction = json.decodeFromString(res.body())
-
-        if (data.report != null) {
-            return data.report
-        }
-
-        if (data.state == "finished") {
-            return null
-        }
+        HttpClient().get("https://get-report-xqeobirwha-uc.a.run.app?stock=${stock.short_name}")
     } catch (_: Exception) {}
-
-    return "Loading..."
 }

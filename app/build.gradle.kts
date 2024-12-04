@@ -111,4 +111,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     implementation(libs.material3)
+
+    // Markdown
+    implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc10")
+
 }
