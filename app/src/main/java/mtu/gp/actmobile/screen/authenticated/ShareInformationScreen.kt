@@ -317,7 +317,6 @@ fun ShareInformationScreen(nav: NavHostController, stock: Stock?,
             Spacer(Modifier.height(8.dp))
 
             NiceButton("Use AI to generate stock information") {
-                // TODO: Update when Wiktor fixes AI code
                 scope.launch {
                     startAI(stock)
                 }
@@ -368,6 +367,9 @@ fun ShareInformationScreen(nav: NavHostController, stock: Stock?,
 
 suspend fun startAI(stock: Stock) {
     try {
-        HttpClient().get("https://get-report-xqeobirwha-uc.a.run.app?stock=${stock.short_name}")
+        if (premium == 1)
+            HttpClient().get("https://get-report-xqeobirwha-uc.a.run.app?premium=1&stock=${stock.short_name}")
+        else
+            HttpClient().get("https://get-report-xqeobirwha-uc.a.run.app?stock=${stock.short_name}")
     } catch (_: Exception) {}
 }
