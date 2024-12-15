@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -220,7 +221,7 @@ class StocksViewState(val context: Context) : ViewModel() {
             val newPrice = newStock.price
 
 //            if ((oldPrice < alert && newPrice >= alert) || (oldPrice > alert && newPrice <= alert)) {
-                showNotification(context)
+//                showNotification(context)
 //            }
         }
     }
@@ -236,7 +237,6 @@ class StocksViewState(val context: Context) : ViewModel() {
             .get()
             .addOnSuccessListener { data ->
                 data.children.forEach { c ->
-                    // TODO: This doesnt work
                     val amount = c.child("amount").value as Long
                     val stockName = c.child("name").value as String
                     val stock = _stocksState.value.stocks.firstOrNull { it.short_name == stockName }
@@ -247,10 +247,10 @@ class StocksViewState(val context: Context) : ViewModel() {
                         purchases.add(purchase)
 
                         // Alerts
-                        data.child("alerts").children.forEach { a ->
-                            val price = data.child("price").getValue(Float::class.java) ?: 0f
+                        c.child("alerts").children.forEach { a ->
+                            val price = a.child("price").getValue(Double::class.java) ?: 0f
 
-                            alerts.add(PriceAlert(a.key!!, purchase, price))
+                            alerts.add(PriceAlert(a.key!!, purchase, price.toFloat()))
                         }
                     }
                 }
@@ -258,12 +258,6 @@ class StocksViewState(val context: Context) : ViewModel() {
                 _purchasesState.value = PurchasesUiState(purchases)
                 _alertsState.value = PriceAlertsUiState(alerts)
             }
-    }
-
-    fun getAlertsForPurchase(purchase: PurchaseInformation): List<PriceAlert> {
-        return _alertsState.value.alerts.filter {
-            it.purchase.uniqueId == purchase.uniqueId
-        }
     }
 
     fun publishAlert(purchase: PurchaseInformation, priceAlert: Float) {

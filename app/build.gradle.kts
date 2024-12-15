@@ -115,4 +115,7 @@ dependencies {
     // Markdown
     implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc10")
 
+    // Graphs
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
 }

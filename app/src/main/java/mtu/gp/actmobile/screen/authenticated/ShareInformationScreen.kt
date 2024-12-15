@@ -18,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -35,6 +36,14 @@ import androidx.compose.ui.unit.min
 import androidx.navigation.NavHostController
 import co.yml.charts.axis.AxisData
 import co.yml.charts.common.model.Point
+import co.yml.charts.ui.barchart.BarChart
+import co.yml.charts.ui.barchart.GroupBarChart
+import co.yml.charts.ui.barchart.models.BarChartData
+import co.yml.charts.ui.barchart.models.BarData
+import co.yml.charts.ui.barchart.models.BarPlotData
+import co.yml.charts.ui.barchart.models.BarStyle
+import co.yml.charts.ui.barchart.models.GroupBar
+import co.yml.charts.ui.barchart.models.GroupBarChartData
 import co.yml.charts.ui.linechart.LineChart
 import co.yml.charts.ui.linechart.model.GridLines
 import co.yml.charts.ui.linechart.model.Line
@@ -66,12 +75,12 @@ import mtu.gp.actmobile.ui.theme.Blue
 import mtu.gp.actmobile.ui.theme.LightBlue
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 @Composable
 fun ShareInformationScreen(nav: NavHostController, stock: Stock?,
                            stockState: StocksViewState, purchase: PurchaseInformation? = null
 ) {
-    // TODO: This has to be changed
     if (stock == null)
         return
 
@@ -123,6 +132,8 @@ fun ShareInformationScreen(nav: NavHostController, stock: Stock?,
     //            nav.popBackStack()
     //        }
 
+            val stepCount = 15
+
             // TODO: change to appropriate width
             Row(Modifier.horizontalScroll(scroll).width(600.dp)) {
                 LineChart(
@@ -136,24 +147,90 @@ fun ShareInformationScreen(nav: NavHostController, stock: Stock?,
                         ),
                         xAxisData = AxisData.Builder()
                             .axisLabelDescription { "Days Prior" }
-                            .steps(30)
+                            .steps(lows.size)
                             .labelData { it.toString() }
                             .build(),
                         yAxisData = AxisData.Builder()
                             .axisLabelDescription { "Value" }
-                            .steps(30)
+                            .steps(stepCount)
                             .labelData {
-                                val step = (maxY - minY) / 30
-                                ((it * step) + minY).toString()
+                                val step = (maxY - minY) / stepCount
+                                String.format("%.2f", ((it * step) + minY)).toString()
                             }
                             .build()
                     )
                 )
             }
 
+
             Row {
                 Text("High ", color = Color(0xFF037B66), fontWeight = FontWeight.Bold)
                 Text("Low", color = Blue, fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(Modifier.height(32.dp))
+
+            if (stock.share_type == "share") {
+                GroupBarChart(
+                    modifier = Modifier.height(500.dp),
+                    groupBarChartData = GroupBarChartData(
+                        barPlotData = BarPlotData(
+                            barColorPaletteList = listOf(Color.White, Color(0xFF037B66), Blue),
+                            groupBarList = listOf(
+                                GroupBar(
+                                    "Environment",
+                                    barList = listOf(
+                                        BarData(Point(1f, 100f), color = Color.White), // NOTE: for scale
+                                        BarData(Point(0f, stock.esg.environment!!.toFloat())),
+                                        BarData(Point(1f, 45f)), // NOTE: Ideal
+                                    )
+                                ),
+                                GroupBar(
+                                    "Social",
+                                    barList = listOf(
+                                        BarData(Point(1f, 100f), color = Color.White), // NOTE: for scale
+                                        BarData(Point(0f, stock.esg.social!!.toFloat())),
+                                        BarData(Point(1f, 35f))
+                                    )
+                                ),
+                                GroupBar(
+                                    "Governance",
+                                    barList = listOf(
+                                        BarData(Point(1f, 100f), color = Color.White), // NOTE: for scale
+                                        BarData(Point(0f, stock.esg.governance!!.toFloat())),
+                                        BarData(Point(1f, 42f))
+                                    )
+                                )
+                            )
+//                        BarData(Point(2f, 2f)),
+//                        BarData(Point(3f, 4f)),
+                        ),
+                        xAxisData = AxisData.Builder()
+                            .axisLabelDescription { "Type" }
+                            .steps(2)
+                            .labelAndAxisLinePadding(15.dp)
+                            .bottomPadding(40.dp)
+                            .labelData { i ->
+                                when (i) {
+                                    0 -> "Environment"
+                                    1 -> "Social"
+                                    2 -> "Governance"
+                                    else -> ""
+                                }
+                            }.build(),
+                        yAxisData = AxisData.Builder()
+                            .steps(10)
+                            .labelData { i -> (i * 10).toString() }
+                            .build()
+                    )
+                )
+
+                Row {
+                    Text("Share score ", color = Color(0xFF037B66), fontWeight = FontWeight.Bold)
+                    Text("Average score", color = Blue, fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(Modifier.height(32.dp))
             }
 
             Spacer(Modifier.height(16.dp))
@@ -163,8 +240,6 @@ fun ShareInformationScreen(nav: NavHostController, stock: Stock?,
 
             // If this stock has not been purchased, then allow the user to do so
             if (purchase == null) {
-                // TODO: Change to numerical input
-
                 Row(Modifier.fillMaxWidth()) {
                     Column(Modifier.fillMaxWidth(0.55f)) {
                         NiceIntInput(stockAmount.toString(), "Stock Amount") {
@@ -194,9 +269,9 @@ fun ShareInformationScreen(nav: NavHostController, stock: Stock?,
             // If the stock has been purchased, allow the user to sell it
             else {
                 NiceButton("Sell Stock") {
-                    stockState.sellStock(purchase)
                     Toast.makeText(context, "Sold!", Toast.LENGTH_LONG).show()
                     nav.popBackStack()
+                    stockState.sellStock(purchase)
                 }
 
                 Spacer(Modifier.height(16.dp))
@@ -220,13 +295,17 @@ fun ShareInformationScreen(nav: NavHostController, stock: Stock?,
                     }
                 }
 
-                LazyColumn(Modifier.height(300.dp)) {
-                    items(stockState.getAlertsForPurchase(purchase)) {
+                Column(Modifier.height(300.dp).verticalScroll(rememberScrollState())) {
+                    stockState.alertsState.collectAsState().value.alerts.forEach {
+
+                        if (it.purchase.uniqueId != purchase.uniqueId)
+                            return@forEach
+
                         Column {
                             Text(it.price.toString())
 
                             NiceButton("Remove") {
-                                // TODO: This
+                                stockState.unpublishAlert(it)
                             }
                         }
                     }

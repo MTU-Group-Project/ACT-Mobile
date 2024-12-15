@@ -2,10 +2,14 @@ package mtu.gp.actmobile.screen.authenticated
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -13,7 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.github.mikephil.charting.charts.BarChart
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.rememberPaymentSheet
@@ -28,6 +34,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import mtu.gp.actmobile.R
 import mtu.gp.actmobile.component.NiceButton
 
 // NOTE: Test card 4242 4242 4242 4242
@@ -85,6 +92,14 @@ fun PremiumBuyScreen() {
     PaymentConfiguration.init(LocalContext.current, "pk_test_51QKcauDGbrVfwZ9w6XMHg8xzhWfaEot3WPf8ZLSbJbRdgpYzE17MRjLJ2oV5n6rgcUTkcf50FvfViEkwIqPULQiX00RzE4VAWm")
 
     Column {
+        Text("ACT-AI Premium", style = MaterialTheme.typography.headlineMedium)
+
+        Row(Modifier.fillMaxWidth()) {
+            Image(painterResource(R.drawable.stocks_guy), "Stocks guy")
+        }
+
+        Text("To avail of premium AI insights, please pay for ACT-AI premium!")
+
         NiceButton("Pay for ACT-AI Premium") {
             scope.launch {
                 secret = getSecret()

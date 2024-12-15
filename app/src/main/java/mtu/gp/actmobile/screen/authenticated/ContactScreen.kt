@@ -44,6 +44,9 @@ fun ContactScreen() {
     var phone by remember { mutableStateOf("") }
     var feedback by remember { mutableStateOf("") }
 
+    var starsText by remember { mutableStateOf("") }
+    var leaveCommentText by remember { mutableStateOf("") }
+
     val ctx = LocalContext.current
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         // Phone to call support
@@ -94,14 +97,14 @@ fun ContactScreen() {
         // Leave rating
         Spacer(Modifier.height(30.dp))
 
-        NiceIntInput("Stars") {
-            // TODO:
+        NiceIntInput(starsText, "Stars") {
+            starsText = it
         }
 
         Spacer(Modifier.height(8.dp))
 
-        NiceTextInput("Leave a Comment") {
-            // TODO:
+        NiceTextInput(leaveCommentText, "Leave a Comment") {
+            leaveCommentText = it
         }
 
         Spacer(Modifier.height(8.dp))
