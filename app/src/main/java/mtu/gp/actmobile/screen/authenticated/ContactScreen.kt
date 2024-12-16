@@ -26,13 +26,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.Firebase
+import com.google.firebase.database.database
 import mtu.gp.actmobile.component.NiceButton
 import mtu.gp.actmobile.component.NiceIntInput
 import mtu.gp.actmobile.component.NiceTextInput
 
 
 const val PHONE_NUMBER = "+353894560072"
-const val APP_PACKAGE = "mtu.gp.actprototype"
 
 // Represents the contact screen, where a user
 // can contact support through phone or email,
@@ -65,8 +66,8 @@ fun ContactScreen() {
         Spacer(Modifier.height(20.dp))
 
         // Name input field
-        NiceTextInput(email, "Name") {
-            email = it
+        NiceTextInput(name, "Name") {
+            name = it
         }
 
         // Email input field
@@ -90,7 +91,19 @@ fun ContactScreen() {
         // Submit button
         Spacer(Modifier.height(20.dp))
         NiceButton("Submit") {
-            // TODO: Submit
+            val database = Firebase.database.reference
+            val messageData = mapOf(
+                "name" to name,
+                "email" to email,
+                "phone" to phone,
+                "feedback" to feedback
+            )
+            database.child("message").push().setValue(messageData)
+
+            name = ""
+            email = ""
+            phone = ""
+            feedback = ""
         }
 
 
@@ -109,11 +122,15 @@ fun ContactScreen() {
 
         Spacer(Modifier.height(8.dp))
         NiceButton("Leave a rating!") {
-            // TODO: fallback if fail?
-            // TODO: Change the idea of this to the comment and stars system
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("market://details?id=$APP_PACKAGE")
-            ctx.startActivity(intent)
+            val database = Firebase.database.reference
+            val ratingData = mapOf(
+                "stars" to starsText.toIntOrNull(),
+                "comment" to leaveCommentText
+            )
+            database.child("rating").push().setValue(ratingData)
+
+            starsText = ""
+            leaveCommentText = ""
         }
     }
 }

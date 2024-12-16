@@ -162,7 +162,6 @@ fun ShareInformationScreen(nav: NavHostController, stock: Stock?,
                 )
             }
 
-
             Row {
                 Text("High ", color = Color(0xFF037B66), fontWeight = FontWeight.Bold)
                 Text("Low", color = Blue, fontWeight = FontWeight.Bold)
